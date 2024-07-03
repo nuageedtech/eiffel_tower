@@ -1,0 +1,93 @@
+<html>
+
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+
+</head>
+
+<body>
+
+	<!-- Video element with controls -->
+	<video id="videotg" width="400" height="400" controls style="display:none;" muted>
+		<source src="video/EiffelTower_RJ.mp4" type="video/mp4">
+	</video>
+
+	<a-scene mindar-image="imageTargetSrc: images/Eiffet_tower_targets.mind;" vr-mode-ui="enabled: false"
+		device-orientation-permission-ui="enabled: false">
+
+		<a-camera active="true" position="0 0 0" look-controls="enabled: false" cursor="fuse: false; rayOrigin: mouse;"
+			raycaster="near: 10; far: 10000; objects: .clickable"></a-camera>
+
+		<a-entity id="example-target" mindar-image-target="targetIndex: 0">
+			<!--<a-video id="videoElement" src="video/EiffelTower_RJ.mp4" visible="false" position="0 0 0"></a-video>-->
+		</a-entity>
+
+	</a-scene>
+
+	<script>
+
+		document.addEventListener("DOMContentLoaded", function () {
+			const sceneEl = document.querySelector('a-scene');
+			let videotg = document.querySelector('#videotg');
+
+			let arSystem;
+			let detectionStopped = false;
+
+			sceneEl.addEventListener('loaded', function () {
+				arSystem = sceneEl.systems["mindar-image-system"];
+			});
+
+			const exampleTarget = document.querySelector('#example-target');
+
+			//const videoElement = document.querySelector('#videoElement');
+
+
+			// detect target found
+			exampleTarget.addEventListener("targetFound", event => {
+				console.log("target found");
+				if (detectionStopped) return;
+				// Stop AR system or hide elements related to AR
+				arSystem.stop();
+
+				initializeCustomAR();
+			});
+
+
+			// Function to initialize custom AR session with Three.js
+			function initializeCustomAR() {
+				detectionStopped = true;
+
+				// Show and play the video
+				//videoElement.setAttribute('visible', true);
+				//videoElement.play();
+
+				videotg.style.display = 'block';
+				videotg.style.position = 'relative';
+				videotg.style.zIndex = '999';
+
+
+
+				// Play the video
+				videotg.play().then(() => {
+					console.log("Video is playing");
+					// Unmute the video after 1 second
+					/*setTimeout(() => {
+						videotg.muted = false;
+						console.log("Video unmuted");
+					}, 1000); // 1000 milliseconds = 1 second */
+				}).catch(error => {
+					console.error("Error playing video: ", error);
+				});
+
+			};
+
+
+		});
+
+	</script>
+
+</body>
+
+</html>
